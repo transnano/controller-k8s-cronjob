@@ -248,6 +248,27 @@ $ vim ./api/v1alpha1/cronjob_webhook.go
 ```
 </details>
 
+### Running and deploying the controller
+
+Download [Kustomize(Binaries)](https://kubernetes-sigs.github.io/kustomize/installation/binaries/)
+
+```sh
+$ kustomize version
+{Version:kustomize/v3.8.2 GitCommit:e2973f6ecc9be6187cfd5ecf5e180f842249b3c6 BuildDate:2020-08-29T17:44:01Z GoOs:linux GoArch:amd64}
+```
+
+```sh
+$ make install
+```
+
+<summary>Result</summary>
+<details>
+
+```sh
+
+```
+</details>
+
 ### 
 
 ```sh
@@ -263,13 +284,6 @@ $ vim ./api/v1alpha1/cronjob_webhook.go
 </details>
 
 ## Demo
-
-Download [Kustomize(Binaries)](https://kubernetes-sigs.github.io/kustomize/installation/binaries/)
-
-```sh
-$ kustomize version
-{Version:kustomize/v3.8.2 GitCommit:e2973f6ecc9be6187cfd5ecf5e180f842249b3c6 BuildDate:2020-08-29T17:44:01Z GoOs:linux GoArch:amd64}
-```
 
 make
 

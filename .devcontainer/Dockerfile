@@ -77,8 +77,13 @@ ARG KBVER=2.3.1
 RUN os=$(go env GOOS) \
     && arch=$(go env GOARCH) \
     && curl -L https://go.kubebuilder.io/dl/${KBVER}/${os}/${arch} | tar -xz -C /tmp/ \
-    && mv /tmp/kubebuilder_${KBVER}_${os}_${arch} /usr/local/kubebuilder
+    && mv /tmp/kubebuilder_${KBVER}_${os}_${arch} /usr/local/kubebuilder \
+    && export PATH=$PATH:/usr/local/kubebuilder/bin
 ENV PATH $PATH:/usr/local/kubebuilder/bin
+
+WORKDIR /usr/local/bin/
+RUN curl -s "https://raw.githubusercontent.com/\
+kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
 
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update \
