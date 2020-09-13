@@ -29,8 +29,8 @@ $ go version
 $ kubebuilder version
 ```
 
-<summary>Result</summary>
 <details>
+<summary>Result</summary>
 
 ```sh
 $ go version
@@ -45,8 +45,8 @@ $ go mod init github.com/transnano/controller-k8s-cronjob
 $ kubebuilder init --domain transnano.net --license apache2 --owner "Transnano"
 ```
 
-<summary>Result</summary>
 <details>
+<summary>Result</summary>
 
 ```sh
 $ go mod init github.com/transnano/controller-k8s-cronjob
@@ -148,17 +148,17 @@ $ kubebuilder create api
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
 		MetricsBindAddress: metricsAddr,
-    Port:               9443,
+		Port:               9443,
 		// Namespace:          "",
-		LeaderElection:     enableLeaderElection,
-		LeaderElectionID:   "77aadf3c.transnano.net",
+		LeaderElection:   enableLeaderElection,
+		LeaderElectionID: "77aadf3c.transnano.net",
 	})
 ```
 
 Ref: [Every journey needs a start, every program a main - The Kubebuilder Book](https://book.kubebuilder.io/cronjob-tutorial/empty-main.html)
 
-<summary>Result</summary>
 <details>
+<summary>Result</summary>
 
 ```sh
 
@@ -171,8 +171,8 @@ Ref: [Every journey needs a start, every program a main - The Kubebuilder Book](
 $ kubebuilder create api --group batch --version v1alpha1 --kind CronJob
 ```
 
-<summary>Result</summary>
 <details>
+<summary>Result</summary>
 
 ```sh
 $ kubebuilder create api --group batch --version v1alpha1 --kind CronJob
@@ -198,8 +198,8 @@ go build -o bin/manager main.go
 $ vim ./api/v1alpha1/cronjob_types.go
 ```
 
-<summary>Result</summary>
 <details>
+<summary>Result</summary>
 
 ```sh
 
@@ -212,8 +212,8 @@ $ vim ./api/v1alpha1/cronjob_types.go
 $ vim ./controllers/cronjob_controller.go
 ```
 
-<summary>Result</summary>
 <details>
+<summary>Result</summary>
 
 ```sh
 
@@ -226,8 +226,8 @@ $ vim ./controllers/cronjob_controller.go
 $ kubebuilder create webhook --group batch --version v1alpha1 --kind CronJob --defaulting --programmatic-validation
 ```
 
-<summary>Result</summary>
 <details>
+<summary>Result</summary>
 
 ```sh
 $ kubebuilder create webhook --group batch --version v1alpha1 --kind CronJob --defaulting --programmatic-validation
@@ -240,8 +240,8 @@ api/v1alpha1/cronjob_webhook.go
 $ vim ./api/v1alpha1/cronjob_webhook.go
 ```
 
-<summary>Result</summary>
 <details>
+<summary>Result</summary>
 
 ```sh
 
@@ -254,8 +254,8 @@ $ vim ./api/v1alpha1/cronjob_webhook.go
 $ make
 ```
 
-<summary>Result</summary>
 <details>
+<summary>Result</summary>
 
 ```sh
 $ make
@@ -287,8 +287,8 @@ $ kubectl version
 $ kustomize version
 ```
 
-<summary>Result</summary>
 <details>
+<summary>Result</summary>
 
 ```sh
 
@@ -301,8 +301,8 @@ $ kustomize version
 $ make install
 ```
 
-<summary>Result</summary>
 <details>
+<summary>Result</summary>
 
 ```sh
 
@@ -315,8 +315,8 @@ $ make install
 
 ```
 
-<summary>Result</summary>
 <details>
+<summary>Result</summary>
 
 ```sh
 

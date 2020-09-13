@@ -61,7 +61,7 @@
                     <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 118px; height: 1px; padding-top: 50px; margin-left: 221px;">
                         <div style="box-sizing: border-box; font-size: 0; text-align: left; ">
                             <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
-                                kind: Guestbook
+                                kind: CronJob
                                 <br/>
                                 metadata:
                                 <br/>
@@ -79,7 +79,7 @@
                     </div>
                 </foreignObject>
                 <text x="221" y="54" fill="#000000" font-family="Helvetica" font-size="12px">
-                    kind: Guestbook...
+                    kind: CronJob...
                 </text>
             </switch>
         </g>
@@ -109,7 +109,7 @@
                     <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 94px; height: 1px; padding-top: 390px; margin-left: 172px;">
                         <div style="box-sizing: border-box; font-size: 0; text-align: center; ">
                             <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: #ffffff; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
-                                Guestbook
+                                CronJob
                                 <br/>
                                 Controller
                             </div>
@@ -117,7 +117,7 @@
                     </div>
                 </foreignObject>
                 <text x="219" y="394" fill="#ffffff" font-family="Helvetica" font-size="12px" text-anchor="middle">
-                    Guestbook...
+                    CronJob...
                 </text>
             </switch>
         </g>
@@ -201,13 +201,13 @@
                     <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 290px; margin-left: 59px;">
                         <div style="box-sizing: border-box; font-size: 0; text-align: center; ">
                             <div style="display: inline-block; font-size: 11px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: all; background-color: #ffffff; white-space: nowrap; ">
-                                ３. Create Guestbook-rs
+                                ３. Create CronJob-rs
                             </div>
                         </div>
                     </div>
                 </foreignObject>
                 <text x="59" y="294" fill="#000000" font-family="Helvetica" font-size="11px" text-anchor="middle">
-                    ３. Create Guestbook-rs
+                    ３. Create CronJob-rs
                 </text>
             </switch>
         </g>
@@ -219,13 +219,13 @@
                     <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 350px; margin-left: 210px;">
                         <div style="box-sizing: border-box; font-size: 0; text-align: center; ">
                             <div style="display: inline-block; font-size: 11px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: all; background-color: #ffffff; white-space: nowrap; ">
-                                4. Detect Guestbook-rs
+                                4. Detect CronJob-rs
                             </div>
                         </div>
                     </div>
                 </foreignObject>
                 <text x="210" y="354" fill="#000000" font-family="Helvetica" font-size="11px" text-anchor="middle">
-                    4. Detect Guestbook-rs
+                    4. Detect CronJob-rs
                 </text>
             </switch>
         </g>
