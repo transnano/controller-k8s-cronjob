@@ -220,6 +220,34 @@ $ vim ./controllers/cronjob_controller.go
 ```
 </details>
 
+### Implementing defaulting/validating webhooks
+
+```sh
+$ kubebuilder create webhook --group batch --version v1alpha1 --kind CronJob --defaulting --programmatic-validation
+```
+
+<summary>Result</summary>
+<details>
+
+```sh
+$ kubebuilder create webhook --group batch --version v1alpha1 --kind CronJob --defaulting --programmatic-validation
+Writing scaffold for you to edit...
+api/v1alpha1/cronjob_webhook.go
+```
+</details>
+
+```sh
+$ vim ./api/v1alpha1/cronjob_webhook.go
+```
+
+<summary>Result</summary>
+<details>
+
+```sh
+
+```
+</details>
+
 ### 
 
 ```sh
