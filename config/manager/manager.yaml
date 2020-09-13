@@ -27,7 +27,7 @@ spec:
         - /manager
         args:
         - --enable-leader-election
-        image: controller:latest
+        image: transnano/controller-k8s-cronjob:latest
         name: manager
         resources:
           limits:

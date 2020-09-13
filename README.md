@@ -248,14 +248,54 @@ $ vim ./api/v1alpha1/cronjob_webhook.go
 ```
 </details>
 
+### Generate config files
+
+```sh
+$ make
+```
+
+<summary>Result</summary>
+<details>
+
+```sh
+$ make
+/go/bin/controller-gen object:headerFile="hack/boilerplate.go.txt" paths="./..."
+go fmt ./...
+go vet ./...
+go build -o bin/manager main.go
+```
+</details>
+
+## Demo
+
+Run the following command from a location where you can connect to the cluster.
+
+program    | version
+---------- | ------:
+kubernetes |
+go         |  1.15.1
+kubectl    |
+kustomize  |   3.8.2
+
 ### Running and deploying the controller
 
 Download [Kustomize(Binaries)](https://kubernetes-sigs.github.io/kustomize/installation/binaries/)
 
 ```sh
+$ go version
+$ kubectl version
+$ kustomize version
+```
+
+<summary>Result</summary>
+<details>
+
+```sh
+
 $ kustomize version
 {Version:kustomize/v3.8.2 GitCommit:e2973f6ecc9be6187cfd5ecf5e180f842249b3c6 BuildDate:2020-08-29T17:44:01Z GoOs:linux GoArch:amd64}
 ```
+</details>
 
 ```sh
 $ make install
@@ -282,8 +322,6 @@ $ make install
 
 ```
 </details>
-
-## Demo
 
 make
 
