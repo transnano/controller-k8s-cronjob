@@ -192,10 +192,10 @@ go build -o bin/manager main.go
 ```
 </details>
 
-### 
+### Designing an API
 
 ```sh
-
+$ vim ./api/v1alpha1/cronjob_types.go
 ```
 
 <summary>Result</summary>
@@ -206,10 +206,10 @@ go build -o bin/manager main.go
 ```
 </details>
 
-### 
+### Implementing a controller
 
 ```sh
-
+$ vim ./controllers/cronjob_controller.go
 ```
 
 <summary>Result</summary>

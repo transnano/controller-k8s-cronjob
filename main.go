@@ -31,6 +31,8 @@ import (
 	// +kubebuilder:scaffold:imports
 )
 
+// +kubebuilder:docs-gen:collapse=Imports
+
 var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
@@ -67,6 +69,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	// +kubebuilder:docs-gen:collapse=old stuff
+
 	if err = (&controllers.CronJobReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("CronJob"),
@@ -82,4 +86,5 @@ func main() {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
+	// +kubebuilder:docs-gen:collapse=old stuff
 }
