@@ -1,0 +1,7 @@
+domain: transnano.net
+repo: github.com/transnano/controller-k8s-cronjob
+resources:
+- group: batch
+  kind: CronJob
+  version: v1alpha1
+version: "2"
