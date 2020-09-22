@@ -270,20 +270,26 @@ go build -o bin/manager main.go
 
 Run the following command from a location where you can connect to the cluster.
 
-program    | version
----------- | ------:
-kubernetes |
-go         |  1.15.1
-kubectl    |
-kustomize  |   3.8.2
+program    |          version
+---------- | ---------------:
+kubernetes | v1.17.9-gke.1504
+go         |           1.15.2
+kubectl    |          v1.19.1
+kustomize  |           v3.8.4
 
 ### Running and deploying the controller
 
 Download [Kustomize(Binaries)](https://kubernetes-sigs.github.io/kustomize/installation/binaries/)
 
 ```sh
+$ curl -s "https://raw.githubusercontent.com/\
+kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+$ sudo mv kustomize /usr/local/bin/
+```
+
+```sh
 $ go version
-$ kubectl version
+$ kubectl version --short
 $ kustomize version
 ```
 
@@ -291,14 +297,25 @@ $ kustomize version
 <summary>Result</summary>
 
 ```sh
+$ go version
+go version go1.15.2 linux/amd64
+
+$ kubectl version --short
+Client Version: v1.19.1
+Server Version: v1.17.9-gke.1504
 
 $ kustomize version
-{Version:kustomize/v3.8.2 GitCommit:e2973f6ecc9be6187cfd5ecf5e180f842249b3c6 BuildDate:2020-08-29T17:44:01Z GoOs:linux GoArch:amd64}
+{Version:kustomize/v3.8.4 GitCommit:8285af8cf11c0b202be533e02b88e114ad61c1a9 BuildDate:2020-09-19T15:39:21Z GoOs:linux GoArch:amd64}
 ```
 </details>
 
 ```sh
 $ openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out tls.crt -keyout tls.key
+$ chmod 400 tls.key
+$ ls tls.{crt,key}
+tls.crt  tls.key
+$ mkdir -p /tmp/k8s-webhook-server/serving-certs/
+$ mv tls.{crt,key} /tmp/k8s-webhook-server/serving-certs/
 
 $ make install
 ```
@@ -337,68 +354,334 @@ Email Address []:admin@example.com
 
 ```
 
+[Google Cloud ShellにおけるGoの開発環境の構築](https://golangtokyo.github.io/codelab/cloud-shell-go-setup/#5)
+
+<details>
+<summary>Update go</summary>
+
+```sh
+$ wget -O - https://dl.google.com/go/go1.15.2.linux-amd64.tar.gz | tar zxvf -
+$ mv go go_1_15_2
+$ export GOROOT=$HOME/go_1_15_2
+$ export PATH=$GOROOT/bin:$PATH
+$ go version
+go version go1.15.2 linux/amd64
+```
+</details>
+
+### make install
+
+```sh
+$ make install
+```
+
 <details>
 <summary>Result</summary>
 
 ```sh
-
+$ make install
+/home/$USER/gopath/bin/controller-gen "crd:trivialVersions=true" rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+kustomize build config/crd | kubectl apply -f -
+customresourcedefinition.apiextensions.k8s.io/cronjobs.batch.transnano.net created
 ```
 </details>
 
-make
+### make run
 
 ```sh
-$ make install
 $ make run
-$ kubectl apply -f config/samples/
 ```
 
+<details>
+<summary>Result</summary>
+
 ```sh
-$ kubectl get crd
-NAME                                             CREATED AT
-...
-guestbook2s.webapp.my.domain                     2020-09-07T12:56:01Z
-guestbooks.webapp.my.domain                      2020-09-07T12:56:01Z
-...
+$ make run
+/home/$USER/gopath/bin/controller-gen object:headerFile="hack/boilerplate.go.txt" paths="./..."
+go fmt ./...
+go vet ./...
+/home/$USER/gopath/bin/controller-gen "crd:trivialVersions=true" rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+go run ./main.go
+2020-09-22T07:51:58.235Z        INFO    controller-runtime.metrics      metrics server is starting to listen    {"addr": ":8080"}
+2020-09-22T07:51:58.235Z        INFO    controller-runtime.builder      Registering a mutating webhook  {"GVK": "batch.transnano.net/v1alpha1, Kind=CronJob", "path": "/mutate-batch-transnano-net-v1alpha1-cronjob"}
+2020-09-22T07:51:58.235Z        INFO    controller-runtime.webhook      registering webhook     {"path": "/mutate-batch-transnano-net-v1alpha1-cronjob"}
+2020-09-22T07:51:58.236Z        INFO    controller-runtime.builder      Registering a validating webhook        {"GVK": "batch.transnano.net/v1alpha1, Kind=CronJob", "path": "/validate-batch-transnano-net-v1alpha1-cronjob"}
+2020-09-22T07:51:58.236Z        INFO    controller-runtime.webhook      registering webhook     {"path": "/validate-batch-transnano-net-v1alpha1-cronjob"}
+2020-09-22T07:51:58.236Z        INFO    setup   starting manager
+2020-09-22T07:51:58.438Z        INFO    controller-runtime.webhook.webhooks     starting webhook server
+2020-09-22T07:51:58.438Z        INFO    controller      Starting EventSource    {"reconcilerGroup": "batch.transnano.net", "reconcilerKind": "CronJob", "controller": "cronjob", "source": "kind source: /, Kind="}
+2020-09-22T07:51:58.438Z        INFO    controller-runtime.manager      starting metrics server {"path": "/metrics"}
+2020-09-22T07:51:58.439Z        INFO    controller-runtime.certwatcher  Updated current TLS certificate
+2020-09-22T07:51:58.440Z        INFO    controller-runtime.webhook      serving webhook server  {"host": "", "port": 9443}
+2020-09-22T07:51:58.440Z        INFO    controller-runtime.certwatcher  Starting certificate watcher
+2020-09-22T07:51:58.639Z        INFO    controller      Starting EventSource    {"reconcilerGroup": "batch.transnano.net", "reconcilerKind": "CronJob", "controller": "cronjob", "source": "kind source: /, Kind="}
+2020-09-22T07:51:58.639Z        INFO    controller      Starting Controller     {"reconcilerGroup": "batch.transnano.net", "reconcilerKind": "CronJob", "controller": "cronjob"}
+2020-09-22T07:51:58.639Z        INFO    controller      Starting workers        {"reconcilerGroup": "batch.transnano.net", "reconcilerKind": "CronJob", "controller": "cronjob", "worker count": 1}
+2020-09-22T07:51:58.639Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 0, "failed jobs": 0}
+2020-09-22T07:51:59.040Z        DEBUG   controllers.CronJob     created Job for CronJob run     {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:51:58.835Z", "next run": "2020-09-22T07:52:00.000Z", "current run": "2020-09-22T07:51:00.000Z", "job": {"namespace": "default", "name": "cronjob-sample-1600761060"}}
+2020-09-22T07:51:59.040Z        DEBUG   controller      Successfully Reconciled {"reconcilerGroup": "batch.transnano.net", "reconcilerKind": "CronJob", "controller": "cronjob", "name": "cronjob-sample", "namespace": "default"}
+2020-09-22T07:51:59.040Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 0, "failed jobs": 0}
+2020-09-22T07:51:59.369Z        ERROR   controllers.CronJob     unable to create Job for CronJob        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:51:59.201Z", "next run": "2020-09-22T07:52:00.000Z", "current run": "2020-09-22T07:51:00.000Z", "job": {"namespace": "default", "name": "cronjob-sample-1600761060"}, "error": "jobs.batch \"cronjob-sample-1600761060\" already exists"}
+github.com/go-logr/zapr.(*zapLogger).Error
+        /home/$USER/gopath/pkg/mod/github.com/go-logr/zapr@v0.1.0/zapr.go:128
+github.com/transnano/controller-k8s-cronjob/controllers.(*CronJobReconciler).Reconcile
+        /home/$USER/controller-k8s-cronjob/controllers/cronjob_controller.go:483
+sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller).reconcileHandler
+        /home/$USER/gopath/pkg/mod/sigs.k8s.io/controller-runtime@v0.6.2/pkg/internal/controller/controller.go:235
+sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller).processNextWorkItem
+        /home/$USER/gopath/pkg/mod/sigs.k8s.io/controller-runtime@v0.6.2/pkg/internal/controller/controller.go:209
+sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller).worker
+        /home/$USER/gopath/pkg/mod/sigs.k8s.io/controller-runtime@v0.6.2/pkg/internal/controller/controller.go:188
+k8s.io/apimachinery/pkg/util/wait.BackoffUntil.func1
+        /home/$USER/gopath/pkg/mod/k8s.io/apimachinery@v0.18.6/pkg/util/wait/wait.go:155
+k8s.io/apimachinery/pkg/util/wait.BackoffUntil
+        /home/$USER/gopath/pkg/mod/k8s.io/apimachinery@v0.18.6/pkg/util/wait/wait.go:156
+k8s.io/apimachinery/pkg/util/wait.JitterUntil
+        /home/$USER/gopath/pkg/mod/k8s.io/apimachinery@v0.18.6/pkg/util/wait/wait.go:133
+k8s.io/apimachinery/pkg/util/wait.Until
+        /home/$USER/gopath/pkg/mod/k8s.io/apimachinery@v0.18.6/pkg/util/wait/wait.go:90
+2020-09-22T07:51:59.369Z        ERROR   controller      Reconciler error        {"reconcilerGroup": "batch.transnano.net", "reconcilerKind": "CronJob", "controller": "cronjob", "name": "cronjob-sample", "namespace": "default", "error": "jobs.batch \"cronjob-sample-1600761060\" already exists"}
+github.com/go-logr/zapr.(*zapLogger).Error
+        /home/$USER/gopath/pkg/mod/github.com/go-logr/zapr@v0.1.0/zapr.go:128
+sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller).reconcileHandler
+        /home/$USER/gopath/pkg/mod/sigs.k8s.io/controller-runtime@v0.6.2/pkg/internal/controller/controller.go:237
+sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller).processNextWorkItem
+        /home/$USER/gopath/pkg/mod/sigs.k8s.io/controller-runtime@v0.6.2/pkg/internal/controller/controller.go:209
+sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller).worker
+        /home/$USER/gopath/pkg/mod/sigs.k8s.io/controller-runtime@v0.6.2/pkg/internal/controller/controller.go:188
+k8s.io/apimachinery/pkg/util/wait.BackoffUntil.func1
+        /home/$USER/gopath/pkg/mod/k8s.io/apimachinery@v0.18.6/pkg/util/wait/wait.go:155
+k8s.io/apimachinery/pkg/util/wait.BackoffUntil
+        /home/$USER/gopath/pkg/mod/k8s.io/apimachinery@v0.18.6/pkg/util/wait/wait.go:156
+k8s.io/apimachinery/pkg/util/wait.JitterUntil
+        /home/$USER/gopath/pkg/mod/k8s.io/apimachinery@v0.18.6/pkg/util/wait/wait.go:133
+k8s.io/apimachinery/pkg/util/wait.Until
+        /home/$USER/gopath/pkg/mod/k8s.io/apimachinery@v0.18.6/pkg/util/wait/wait.go:90
+2020-09-22T07:52:00.370Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 0, "failed jobs": 0}
+2020-09-22T07:52:00.696Z        DEBUG   controllers.CronJob     created Job for CronJob run     {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:52:00.531Z", "next run": "2020-09-22T07:53:00.000Z", "current run": "2020-09-22T07:52:00.000Z", "job": {"namespace": "default", "name": "cronjob-sample-1600761120"}}
+2020-09-22T07:52:00.696Z        DEBUG   controller      Successfully Reconciled {"reconcilerGroup": "batch.transnano.net", "reconcilerKind": "CronJob", "controller": "cronjob", "name": "cronjob-sample", "namespace": "default"}
+2020-09-22T07:52:00.696Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 2, "successful jobs": 0, "failed jobs": 0}
+2020-09-22T07:52:00.860Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:52:00.860Z", "next run": "2020-09-22T07:53:00.000Z"}
+2020-09-22T07:52:00.860Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 2, "successful jobs": 0, "failed jobs": 0}
+2020-09-22T07:52:01.022Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:52:01.022Z", "next run": "2020-09-22T07:53:00.000Z"}
+2020-09-22T07:52:01.022Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 2, "successful jobs": 0, "failed jobs": 0}
+2020-09-22T07:52:01.183Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:52:01.183Z", "next run": "2020-09-22T07:53:00.000Z"}
+2020-09-22T07:52:01.228Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 1, "failed jobs": 0}
+2020-09-22T07:52:01.389Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:52:01.389Z", "next run": "2020-09-22T07:53:00.000Z"}
+2020-09-22T07:52:01.389Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 1, "failed jobs": 0}
+2020-09-22T07:52:01.550Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:52:01.550Z", "next run": "2020-09-22T07:53:00.000Z"}
+2020-09-22T07:52:02.167Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 2, "failed jobs": 0}
+2020-09-22T07:52:02.331Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:52:02.331Z", "next run": "2020-09-22T07:53:00.000Z"}
+2020-09-22T07:52:02.331Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 2, "failed jobs": 0}
+2020-09-22T07:52:02.492Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:52:02.492Z", "next run": "2020-09-22T07:53:00.000Z"}
+
+2020-09-22T07:53:00.000Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 2, "failed jobs": 0}
+2020-09-22T07:53:00.327Z        DEBUG   controllers.CronJob     created Job for CronJob run     {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:53:00.162Z", "next run": "2020-09-22T07:54:00.000Z", "current run": "2020-09-22T07:53:00.000Z", "job": {"namespace": "default", "name": "cronjob-sample-1600761180"}}
+2020-09-22T07:53:00.327Z        DEBUG   controller      Successfully Reconciled {"reconcilerGroup": "batch.transnano.net", "reconcilerKind": "CronJob", "controller": "cronjob", "name": "cronjob-sample", "namespace": "default"}
+2020-09-22T07:53:00.327Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 2, "failed jobs": 0}
+2020-09-22T07:53:00.488Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:53:00.488Z", "next run": "2020-09-22T07:54:00.000Z"}
+2020-09-22T07:53:00.489Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 2, "failed jobs": 0}
+2020-09-22T07:53:00.651Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:53:00.651Z", "next run": "2020-09-22T07:54:00.000Z"}
+2020-09-22T07:53:00.651Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 2, "failed jobs": 0}
+2020-09-22T07:53:00.812Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:53:00.812Z", "next run": "2020-09-22T07:54:00.000Z"}
+2020-09-22T07:53:01.523Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 3, "failed jobs": 0}
+2020-09-22T07:53:01.684Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:53:01.684Z", "next run": "2020-09-22T07:54:00.000Z"}
+2020-09-22T07:53:01.684Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 3, "failed jobs": 0}
+2020-09-22T07:53:01.845Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:53:01.845Z", "next run": "2020-09-22T07:54:00.000Z"}
+2020-09-22T07:54:00.000Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 3, "failed jobs": 0}
+2020-09-22T07:54:00.399Z        DEBUG   controllers.CronJob     created Job for CronJob run     {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:54:00.209Z", "next run": "2020-09-22T07:55:00.000Z", "current run": "2020-09-22T07:54:00.000Z", "job": {"namespace": "default", "name": "cronjob-sample-1600761240"}}
+2020-09-22T07:54:00.399Z        DEBUG   controller      Successfully Reconciled {"reconcilerGroup": "batch.transnano.net", "reconcilerKind": "CronJob", "controller": "cronjob", "name": "cronjob-sample", "namespace": "default"}
+2020-09-22T07:54:00.400Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 3, "failed jobs": 0}
+2020-09-22T07:54:00.561Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:54:00.561Z", "next run": "2020-09-22T07:55:00.000Z"}
+2020-09-22T07:54:00.561Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 3, "failed jobs": 0}
+2020-09-22T07:54:00.721Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:54:00.721Z", "next run": "2020-09-22T07:55:00.000Z"}
+2020-09-22T07:54:00.722Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 3, "failed jobs": 0}
+2020-09-22T07:54:00.882Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:54:00.882Z", "next run": "2020-09-22T07:55:00.000Z"}
+2020-09-22T07:54:02.121Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 4, "failed jobs": 0}
+2020-09-22T07:54:02.281Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:54:02.281Z", "next run": "2020-09-22T07:55:00.000Z"}
+2020-09-22T07:54:02.282Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 4, "failed jobs": 0}
+2020-09-22T07:54:02.443Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:54:02.443Z", "next run": "2020-09-22T07:55:00.000Z"}
+2020-09-22T07:55:00.000Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 4, "failed jobs": 0}
+2020-09-22T07:55:00.327Z        DEBUG   controllers.CronJob     created Job for CronJob run     {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:55:00.161Z", "next run": "2020-09-22T07:56:00.000Z", "current run": "2020-09-22T07:55:00.000Z", "job": {"namespace": "default", "name": "cronjob-sample-1600761300"}}
+2020-09-22T07:55:00.327Z        DEBUG   controller      Successfully Reconciled {"reconcilerGroup": "batch.transnano.net", "reconcilerKind": "CronJob", "controller": "cronjob", "name": "cronjob-sample", "namespace": "default"}
+2020-09-22T07:55:00.328Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 4, "failed jobs": 0}
+2020-09-22T07:55:00.488Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:55:00.488Z", "next run": "2020-09-22T07:56:00.000Z"}
+2020-09-22T07:55:00.488Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 4, "failed jobs": 0}
+2020-09-22T07:55:00.649Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:55:00.649Z", "next run": "2020-09-22T07:56:00.000Z"}
+2020-09-22T07:55:00.649Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 4, "failed jobs": 0}
+2020-09-22T07:55:00.811Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:55:00.811Z", "next run": "2020-09-22T07:56:00.000Z"}
+2020-09-22T07:55:02.335Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 5, "failed jobs": 0}
+2020-09-22T07:55:02.496Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:55:02.496Z", "next run": "2020-09-22T07:56:00.000Z"}
+2020-09-22T07:55:02.496Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 5, "failed jobs": 0}
+2020-09-22T07:55:02.657Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:55:02.657Z", "next run": "2020-09-22T07:56:00.000Z"}
+2020-09-22T07:56:00.000Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 5, "failed jobs": 0}
+2020-09-22T07:56:00.324Z        DEBUG   controllers.CronJob     created Job for CronJob run     {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:56:00.161Z", "next run": "2020-09-22T07:57:00.000Z", "current run": "2020-09-22T07:56:00.000Z", "job": {"namespace": "default", "name": "cronjob-sample-1600761360"}}
+2020-09-22T07:56:00.324Z        DEBUG   controller      Successfully Reconciled {"reconcilerGroup": "batch.transnano.net", "reconcilerKind": "CronJob", "controller": "cronjob", "name": "cronjob-sample", "namespace": "default"}
+2020-09-22T07:56:00.325Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 5, "failed jobs": 0}
+2020-09-22T07:56:00.489Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:56:00.489Z", "next run": "2020-09-22T07:57:00.000Z"}
+2020-09-22T07:56:00.489Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 5, "failed jobs": 0}
+2020-09-22T07:56:00.651Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:56:00.651Z", "next run": "2020-09-22T07:57:00.000Z"}
+2020-09-22T07:56:00.651Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 5, "failed jobs": 0}
+2020-09-22T07:56:00.810Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:56:00.810Z", "next run": "2020-09-22T07:57:00.000Z"}
+2020-09-22T07:56:02.012Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 6, "failed jobs": 0}
+2020-09-22T07:56:02.174Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:56:02.174Z", "next run": "2020-09-22T07:57:00.000Z"}
+2020-09-22T07:56:02.175Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 6, "failed jobs": 0}
+2020-09-22T07:56:02.335Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:56:02.335Z", "next run": "2020-09-22T07:57:00.000Z"}
+2020-09-22T07:57:00.000Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 6, "failed jobs": 0}
+2020-09-22T07:57:00.367Z        DEBUG   controllers.CronJob     created Job for CronJob run     {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:57:00.185Z", "next run": "2020-09-22T07:58:00.000Z", "current run": "2020-09-22T07:57:00.000Z", "job": {"namespace": "default", "name": "cronjob-sample-1600761420"}}
+2020-09-22T07:57:00.367Z        DEBUG   controller      Successfully Reconciled {"reconcilerGroup": "batch.transnano.net", "reconcilerKind": "CronJob", "controller": "cronjob", "name": "cronjob-sample", "namespace": "default"}
+2020-09-22T07:57:00.368Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 6, "failed jobs": 0}
+2020-09-22T07:57:00.529Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:57:00.529Z", "next run": "2020-09-22T07:58:00.000Z"}
+2020-09-22T07:57:00.529Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 6, "failed jobs": 0}
+2020-09-22T07:57:00.689Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:57:00.689Z", "next run": "2020-09-22T07:58:00.000Z"}
+2020-09-22T07:57:00.689Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 1, "successful jobs": 6, "failed jobs": 0}
+2020-09-22T07:57:00.849Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:57:00.849Z", "next run": "2020-09-22T07:58:00.000Z"}
+2020-09-22T07:57:02.578Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 7, "failed jobs": 0}
+2020-09-22T07:57:02.738Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:57:02.738Z", "next run": "2020-09-22T07:58:00.000Z"}
+2020-09-22T07:57:02.738Z        DEBUG   controllers.CronJob     job count       {"cronjob": "default/cronjob-sample", "active jobs": 0, "successful jobs": 7, "failed jobs": 0}
+2020-09-22T07:57:02.898Z        DEBUG   controllers.CronJob     no upcoming scheduled times, sleeping until next        {"cronjob": "default/cronjob-sample", "now": "2020-09-22T07:57:02.898Z", "next run": "2020-09-22T07:58:00.000Z"}
+```
+</details>
+
+### Deploy the CronJob
+
+```sh
+$ kubectl create -f config/samples/batch_v1alpha1_cronjob.yaml
 ```
 
+<details>
+<summary>Result</summary>
+
 ```sh
-$ kubectl create namespace controller-k8s-cronjob-system
+$ kubectl create -f config/samples/batch_v1alpha1_cronjob.yaml
+cronjob.batch.transnano.net/cronjob-sample created
+```
+</details>
+
+### get Object
+
+```sh
+$ kubectl get cronjob.batch.transnano.net -o yaml
+$ kubectl get job
 ```
 
-or
+<details>
+<summary>Result</summary>
 
 ```sh
-$ cat my-namespace.yaml
+$ kubectl get cronjob.batch.transnano.net -o yaml
 apiVersion: v1
-kind: Namespace
+items:
+- apiVersion: batch.transnano.net/v1alpha1
+  kind: CronJob
+  metadata:
+    creationTimestamp: "2020-09-22T07:27:03Z"
+    generation: 1
+    name: cronjob-sample
+    namespace: default
+    resourceVersion: "4085"
+    selfLink: /apis/batch.transnano.net/v1alpha1/namespaces/default/cronjobs/cronjob-sample
+    uid: b52c3d0f-1138-4cb7-be92-cfe961efb524
+  spec:
+    concurrencyPolicy: Allow
+    jobTemplate:
+      spec:
+        template:
+          spec:
+            containers:
+            - args:
+              - /bin/sh
+              - -c
+              - date; echo Hello from the Kubernetes cluster
+              image: busybox
+              name: hello
+            restartPolicy: OnFailure
+    schedule: '*/1 * * * *'
+    startingDeadlineSeconds: 60
+kind: List
 metadata:
-  name: controller-k8s-cronjob-system
+  resourceVersion: ""
 
-$ kubectl create -f ./my-namespace.yaml
+$ kubectl get job
+NAME                        COMPLETIONS   DURATION   AGE
+cronjob-sample-1600761060   1/1           2s         4m55s
+cronjob-sample-1600761120   1/1           2s         4m53s
+cronjob-sample-1600761180   1/1           1s         3m53s
+cronjob-sample-1600761240   1/1           2s         2m53s
+cronjob-sample-1600761300   1/1           2s         113s
+cronjob-sample-1600761360   1/1           1s         53s
 ```
+</details>
 
-```sh
-$ make deploy IMG=transnano/controller-k8s-cronjob:latest
-```
-
-```sh
-$ kubectl get pods --namespace=controller-k8s-cronjob-system
-NAME                                                            READY   STATUS    RESTARTS   AGE
-controller-k8s-cronjob-controller-manager-5df9b76756-dsmvc   2/2     Running   0          37s
-```
-
-```sh
-$ kubectl get svc --namespace=controller-k8s-cronjob-system
-NAME                                                           TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)    AGE
-controller-k8s-cronjob-controller-manager-metrics-service   ClusterIP   10.8.3.65    <none>        8443/TCP   8m45s
-```
+### make deploy
 
 ```sh
-$ kubectl get deploy --namespace=controller-k8s-cronjob-system
-NAME                                           READY   UP-TO-DATE   AVAILABLE   AGE
-controller-k8s-cronjob-controller-manager   1/1     1            1           13m
+$ make deploy
 ```
+
+<details>
+<summary>Result</summary>
+
+```sh
+$ make deploy
+/home/$USER/gopath/bin/controller-gen "crd:trivialVersions=true" rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+cd config/manager && kustomize edit set image controller=transnano/controller-k8s-cronjob:latest
+kustomize build config/default | kubectl apply -f -
+namespace/controller-k8s-cronjob-system created
+customresourcedefinition.apiextensions.k8s.io/cronjobs.batch.transnano.net configured
+role.rbac.authorization.k8s.io/controller-k8s-cronjob-leader-election-role created
+clusterrole.rbac.authorization.k8s.io/controller-k8s-cronjob-manager-role created
+clusterrole.rbac.authorization.k8s.io/controller-k8s-cronjob-proxy-role created
+clusterrole.rbac.authorization.k8s.io/controller-k8s-cronjob-metrics-reader created
+rolebinding.rbac.authorization.k8s.io/controller-k8s-cronjob-leader-election-rolebinding created
+clusterrolebinding.rbac.authorization.k8s.io/controller-k8s-cronjob-manager-rolebinding created
+clusterrolebinding.rbac.authorization.k8s.io/controller-k8s-cronjob-proxy-rolebinding created
+service/controller-k8s-cronjob-controller-manager-metrics-service created
+deployment.apps/controller-k8s-cronjob-controller-manager created
+```
+</details>
+
+### 
+
+```sh
+$ 
+```
+
+<details>
+<summary>Result</summary>
+
+```sh
+$ 
+```
+</details>
+
+### 
+
+```sh
+$ 
+```
+
+<details>
+<summary>Result</summary>
+
+```sh
+$ 
+```
+</details>
+
+### 
+
+```sh
+$ 
+```
+
+<details>
+<summary>Result</summary>
+
+```sh
+$ 
+```
+</details>
 
 ### Extra
 
