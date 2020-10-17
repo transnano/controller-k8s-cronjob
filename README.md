@@ -1,4 +1,4 @@
-# controller-k8s-cronjob ![Releases](https://github.com/transnano/controller-k8s-cronjob/workflows/Releases/badge.svg) ![Publish Docker image](https://github.com/transnano/controller-k8s-cronjob/workflows/Publish%20Docker%20image/badge.svg) ![Vulnerability Scan](https://github.com/transnano/controller-k8s-cronjob/workflows/Vulnerability%20Scan/badge.svg)
+# controller-k8s-cronjob ![Releases](https://github.com/transnano/controller-k8s-cronjob/workflows/Releases/badge.svg) ![Publish Docker image](https://github.com/transnano/controller-k8s-cronjob/workflows/Publish%20Docker%20image/badge.svg) ![Vulnerability Scan](https://github.com/transnano/controller-k8s-cronjob/workflows/Vulnerability%20Scan/badge.svg) ![Haskell Dockerfile Linter](https://github.com/transnano/controller-k8s-cronjob/workflows/Haskell%20Dockerfile%20Linter/badge.svg) ![Code Scanning(CodeQL)](https://github.com/transnano/controller-k8s-cronjob/workflows/Code%20Scanning(CodeQL)/badge.svg)
 
 ![License](https://img.shields.io/github/license/transnano/controller-k8s-cronjob?style=flat)
 
