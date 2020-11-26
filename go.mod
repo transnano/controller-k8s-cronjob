@@ -3,7 +3,7 @@ module github.com/transnano/controller-k8s-cronjob
 go 1.13
 
 require (
-	github.com/go-logr/logr v0.1.0
+	github.com/go-logr/logr v0.3.0
 	github.com/onsi/ginkgo v1.12.1
 	github.com/onsi/gomega v1.10.1
 	github.com/robfig/cron v1.2.0
